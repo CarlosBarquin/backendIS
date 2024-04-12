@@ -13,7 +13,7 @@ const validTypes = ["clothing", "footwear", "accessories"];
 app.use(cors());
 
 app.get('/', (request, response) => {
-    response.send('<h1>Servidor con express</h1>')
+    response.send('<h1>Servidor con</h1>')
 })
 
 app.use(bodyParser.json());
