@@ -1,4 +1,5 @@
 require("dotenv").config()
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const port = process.env.PORT;
 
@@ -9,6 +10,7 @@ const app = express()
 const validGenders = ["male", "female", "unisex"];
 const validTypes = ["clothing", "footwear", "accessories"];
 
+app.use(cors());
 
 app.get('/', (request, response) => {
     response.send('<h1>Servidor con express</h1>')
