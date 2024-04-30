@@ -6,7 +6,7 @@ const port = process.env.PORT;
 const express = require('express')
 const app = express()
 
-// Definir los valores permitidos para gender y type
+
 const validGenders = ["male", "female", "unisex"];
 const validTypes = ["clothing", "footwear", "accessories"];
 
@@ -18,30 +18,25 @@ app.get('/', (request, response) => {
 
 app.use(bodyParser.json());
 
-// Ruta para añadir un producto
+
 app.post('/api/addProduct', async (req, res) => {
   try {
-    // Obtener los datos del cuerpo de la solicitud
+
     const { ID, name, img, description, price, gender, type } = req.body;
 
-      // Validar que los campos requeridos estén presentes
       if (!ID || !name || !img || !description || !price || !gender || !type) {
         return res.status(400).json({ error: 'Faltan campos requeridos' });
       }
   
-      // Validar que gender y type sean valores permitidos
       if (!validGenders.includes(gender) || !validTypes.includes(type)) {
         return res.status(400).json({ error: 'Valores de gender o type no válidos' });
       }
 
 
-    // Conectarse a la base de datos
     const db = await connectMongoDB();
 
-    // Obtener la colección de productos
     const collection = db.collection("PRODUCTOS");
 
-    // Insertar el nuevo producto en la colección
     await collection.insertOne({
       ID,
       name,
@@ -52,7 +47,6 @@ app.post('/api/addProduct', async (req, res) => {
       type
     });
 
-    // Enviar una respuesta de éxito
     res.status(201).json({ message: 'Producto añadido exitosamente' });
   } catch (error) {
     console.error("Error al añadir el producto:", error);
@@ -62,14 +56,11 @@ app.post('/api/addProduct', async (req, res) => {
 
 app.get('/api/products', async (req, res) => {
     try {
-      // Conectarse a la base de datos
       const db = await connectMongoDB();
       
-      // Obtener los datos de la colección
       const collection = db.collection("PRODUCTOS");
       const data = await collection.find().toArray();
       
-      // Enviar los datos como respuesta
       res.json(data);
     } catch (error) {
       console.error("Error al obtener los datos:", error);
@@ -81,20 +72,59 @@ app.get('/api/products', async (req, res) => {
   app.get('/api/products/:gender', async (req, res) => {
     try {
       const { gender } = req.params;
-      // Conectarse a la base de datos
       const db = await connectMongoDB();
   
-      // Obtener los datos de la colección
       const collection = db.collection("PRODUCTOS");
       const data = await collection.find({ gender }).toArray();
   
-      // Enviar los datos como respuesta
       res.json(data);
     } catch (error) {
       console.error("Error al obtener los datos:", error);
       res.status(500).json({ error: 'Error al obtener los datos' });
     }
   });
+
+  app.get('/api/productsT/:type', async (req, res) => {
+    try {
+      const { type } = req.params;
+      const db = await connectMongoDB();
+  
+      const collection = db.collection("PRODUCTOS");
+      const data = await collection.find({ type }).toArray();
+  
+      res.json(data);
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+      res.status(500).json({ error: 'Error al obtener los datos' });
+    }
+  }
+);
+  
+app.get('/api/product/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { ObjectId } = require('mongodb');
+    
+
+    const db = await connectMongoDB();
+
+    const collection = db.collection("PRODUCTOS");
+    
+  
+    const data = await collection.findOne({ _id: new ObjectId(id) });
+
+    if (!data) {
+      return res.status(404).json({ error: 'Producto no encontrado' });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error("Error al obtener el producto:", error);
+    res.status(500).json({ error: 'Error al obtener el producto' });
+  }
+});
+
+
 
 const { connectMongoDB } = require("./db/mongo.js");
 
